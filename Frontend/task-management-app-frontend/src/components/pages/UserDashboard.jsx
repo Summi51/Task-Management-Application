@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { message } from "antd";
+import { Box, Button, Typography, CircularProgress, Select, MenuItem, FormControl, InputLabel, List, ListItem, ListItemText, Divider } from "@mui/material";
 
 function UserDashboard() {
   const { token } = useContext(AuthContext);
@@ -9,38 +11,33 @@ function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch user tasks when the component is mounted
   useEffect(() => {
-    if (!token) {
-      alert("Please login first");
-      navigate("/"); // Redirect to login if not authenticated
-    } else {
-      const fetchUserTasks = async () => {
-        try {
-          const response = await fetch("http://localhost:8000/tasks/user", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
-            },
-          });
+    fetchUserTasks();
+  }, []);
 
-          if (response.ok) {
-            const data = await response.json();
-            setTasks(data);
-          } else {
-            setError("Failed to fetch tasks.");
-          }
-        } catch (error) {
-          setError("An error occurred while fetching tasks.");
-        } finally {
-          setLoading(false);
-        }
-      };
+  // Fetch User Its Own Tasks
+  const fetchUserTasks = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/tasks/user", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
-      fetchUserTasks();
+      if (response.ok) {
+        const data = await response.json();
+        setTasks(data);
+      } else {
+        setError("Failed to fetch tasks.");
+      }
+    } catch (error) {
+      setError("An error occurred while fetching tasks.");
+    } finally {
+      setLoading(false);
     }
-  }, [token, navigate]);
+  };
 
   // Function to update task status
   const updateTaskStatus = async (taskId, newStatus) => {
@@ -55,16 +52,10 @@ function UserDashboard() {
       });
 
       if (response.ok) {
-        const updatedTask = await response.json();
-        setTasks((prevTasks) =>
-          prevTasks.map((task) =>
-            task._id === updatedTask.task._id
-              ? { ...task, status: updatedTask.task.status }
-              : task
-          )
-        );
+        message.success("Update Successfully");
+        fetchUserTasks();
       } else {
-        setError("Failed to update task status.");
+        message.error("Failed to update task status.");
       }
     } catch (error) {
       setError("An error occurred while updating the task status.");
@@ -72,48 +63,63 @@ function UserDashboard() {
   };
 
   return (
-    <div>
-      {loading && <h2>Loading your tasks...</h2>}
-      {error && <h2>{error}</h2>}
+    <Box sx={{ padding: 2, backgroundColor: "#f4f6f8", minHeight: "100vh" }}>
+      {loading && <CircularProgress />}
+      {error && <Typography color="error">{error}</Typography>}
 
       {token && !loading && (
         <>
-          <h1>Welcome to Your Dashboard</h1>
-          <button onClick={() => navigate("/logout")}>Logout</button>
+          <Typography variant="h4" gutterBottom>
+            Welcome to Your Dashboard
+          </Typography>
+
+          <Button variant="contained" color="primary" onClick={() => navigate("/logout")}>
+            Logout
+          </Button>
 
           {tasks.length > 0 ? (
             <div>
-              <h2>Your Tasks:</h2>
-              <ul>
+              <Typography variant="h6" gutterBottom>
+                Your Tasks:
+              </Typography>
+              <List>
                 {tasks.map((task) => (
-                  <li key={task._id}>
-                    <h3>{task.title}</h3>
-                    <p>{task.description}</p>
-                    {/* <p>Status: {task.status}</p> */}  
-                    <p>Due Date: {new Date(task.dueDate).toLocaleDateString()}</p>
-                    <p>Your Task Status: {task.assignedTo[0].status}</p>
-
-                    {/* Dropdown to change task status */}
-                    <select
-                      value={task.assignedTo[0].status}
-                      onChange={(e) =>
-                        updateTaskStatus(task._id, e.target.value)
-                      }
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="in progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                    </select>
-                  </li>
+                  <div key={task._id}>
+                    <ListItem>
+                      <ListItemText
+                        primary={task.title}
+                        secondary={
+                          <>
+                            <Typography variant="body2">{task.description}</Typography>
+                            <Typography variant="body2">Due Date: {new Date(task.dueDate).toLocaleDateString()}</Typography>
+                            <Typography variant="body2">Your Task Status: {task.assignedTo[0].status}</Typography>
+                          </>
+                        }
+                      />
+                      <FormControl sx={{ minWidth: 120 }} variant="outlined">
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                          value={task.assignedTo[0].status}
+                          onChange={(e) => updateTaskStatus(task._id, e.target.value)}
+                          label="Status"
+                        >
+                          <MenuItem value="pending">Pending</MenuItem>
+                          <MenuItem value="in progress">In Progress</MenuItem>
+                          <MenuItem value="completed">Completed</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </ListItem>
+                    <Divider />
+                  </div>
                 ))}
-              </ul>
+              </List>
             </div>
           ) : (
-            <p>You have no tasks assigned.</p>
+            <Typography>No tasks assigned.</Typography>
           )}
         </>
       )}
-    </div>
+    </Box>
   );
 }
 

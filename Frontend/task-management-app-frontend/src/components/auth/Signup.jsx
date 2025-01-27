@@ -1,37 +1,44 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
+import '../styles/Signup.css'
+import {
+  TextField,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState(""); // Changed 'name' to 'username'
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); // Added role state
-  const [usernameError, setUsernameError] = useState(""); // Changed 'nameError' to 'usernameError'
+  const [role, setRole] = useState("user");
+  const [usernameError, setUsernameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [roleError, setRoleError] = useState(""); // Added role error state
+  const [roleError, setRoleError] = useState("");
   const [loading, setLoading] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState("");
 
   const handleSignup = async (e) => {
     e.preventDefault();
-
-    setUsernameError(""); // Reset username error
+    setUsernameError("");
     setEmailError("");
     setPasswordError("");
-    setRoleError(""); // Reset role error
+    setRoleError("");
     setApiErrorMessage("");
+    
     let isValid = true;
-
-    // Username validation
     if (!username) {
       setUsernameError("Username is required.");
       isValid = false;
     }
-
-    // Email validation
     if (!email) {
       setEmailError("Email is required.");
       isValid = false;
@@ -39,19 +46,14 @@ const SignUp = () => {
       setEmailError("Email is invalid.");
       isValid = false;
     }
-
-    // Password validation
     if (!password) {
       setPasswordError("Password is required.");
       isValid = false;
     }
-
-    // Role validation
     if (!role) {
       setRoleError("Role is required.");
       isValid = false;
     }
-
     if (!isValid) return;
 
     const obj = { email, password, username, role };
@@ -59,7 +61,7 @@ const SignUp = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/auth/register", // Ensure correct backend URL here
+        "http://localhost:8000/auth/register",
         {
           method: "POST",
           headers: {
@@ -70,12 +72,12 @@ const SignUp = () => {
       );
 
       const data = await response.json();
-        console.log(data)
+      console.log(data);
+
       if (response.ok) {
         message.success("Signup successful! Please log in.");
         navigate("/");
       } else {
-        // Handle error responses
         if (data.message === "Email already exists.") {
           setEmailError("Email already exists. Please use a different email.");
         } else if (data.error === "Username already exists.") {
@@ -99,77 +101,63 @@ const SignUp = () => {
           <h2>Signup Here</h2>
         </div>
         <form onSubmit={handleSignup}>
-          <div className="form-group">
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            {usernameError && <p className="error">{usernameError}</p>}
-          </div>
-
-          <div className="form-group">
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            {emailError && <p className="error">{emailError}</p>}
-          </div>
-
-          <div className="form-group">
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            {passwordError && <p className="error">{passwordError}</p>}
-          </div>
-
-          {/* Role Selection */}
-          <div className="role-selection">
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="user"
-                checked={role === "user"}
-                onChange={(e) => setRole(e.target.value)}
-              />
-              User
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="admin"
-                checked={role === "admin"}
-                onChange={(e) => setRole(e.target.value)}
-              />
-              Admin
-            </label>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            error={!!usernameError}
+            helperText={usernameError}
+          />
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={!!emailError}
+            helperText={emailError}
+          />
+          <TextField
+            label="Password"
+            variant="outlined"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={!!passwordError}
+            helperText={passwordError}
+          />
+          <FormControl component="fieldset" margin="normal" fullWidth error={!!roleError}>
+            <FormLabel component="legend">Role</FormLabel>
+            <RadioGroup
+              row
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <FormControlLabel value="user" control={<Radio />} label="User" />
+              <FormControlLabel value="admin" control={<Radio />} label="Admin" />
+            </RadioGroup>
             {roleError && <p className="error">{roleError}</p>}
-          </div>
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Loading..." : "Sign Up"}
-          </button>
+          </FormControl>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={loading}
+            sx={{ marginTop: 2 }}
+          >
+            {loading ? <CircularProgress size={24} /> : "Sign Up"}
+          </Button>
         </form>
-
         {apiErrorMessage && <p className="error">{apiErrorMessage}</p>}
-
         <p>
-          Already have an account?{" "}
-          <a onClick={() => navigate("/")}>Log in</a>
+          Already have an account? <a onClick={() => navigate("/")}>Log in</a>
         </p>
       </div>
     </div>

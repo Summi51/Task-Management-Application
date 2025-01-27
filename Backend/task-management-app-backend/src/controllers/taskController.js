@@ -3,7 +3,6 @@ const Task = require("../models/taskModel");
 // Get all tasks (Admin only)
 exports.getAllTasks = async (req, res) => {
   try {
-    // Role-based access control
     if (req.userRole !== "admin") {
       return res.status(403).json({ message: "Access denied. Admins only." });
     }
@@ -29,20 +28,25 @@ exports.createTask = async (req, res) => {
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
 
-  if (!title || !description || !dueDate || !assignedTo) {
+  if (!title || !description || !dueDate || !assignedTo || assignedTo.length === 0) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-const tasks = assignedTo.map((userId) => ({
-  title, description, dueDate, status, assignedTo
-}));
+  // Create a task for each user in assignedTo
+  const tasks = assignedTo.map((user) => ({
+    title, 
+    description, 
+    dueDate, 
+    status, 
+    assignedTo: [{ userId: user.userId, status: user.status }]
+  }));
 
-try {
-  await Task.insertMany(tasks);
-  res.status(201).json({ message: "Tasks assigned successfully." });
-} catch (error) {
-  res.status(500).json({ message: "Failed to assign tasks.", error });
-}
+  try {
+    await Task.insertMany(tasks);
+    res.status(201).json({ message: "Tasks assigned successfully." });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to assign tasks.", error });
+  }
 };
 
 

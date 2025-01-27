@@ -11,7 +11,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    setToken(null); // This updates the state and triggers re-renders
+    setToken(null); 
     localStorage.removeItem("token");
   };
 

@@ -9,4 +9,8 @@ router.post("/register", controller.Signup);
 // Login a user
 router.post("/login", controller.userSignin);
 
+// Get all users with role 'user'
+router.get("/users", controller.getUsersByRole);
+
+
 module.exports = router;

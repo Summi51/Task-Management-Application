@@ -2,9 +2,10 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { AuthContext } from "../context/AuthContext";
+import { TextField, Button, CircularProgress, Box, Typography } from "@mui/material";
 
 const Login = () => {
-  const { login } = useContext(AuthContext); // Get the login function from context
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   
   const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ const Login = () => {
 
     if (!isValid) return;
 
-    const obj = { email, password};
+    const obj = { email, password };
 
     setLoading(true);
     try {
@@ -43,14 +44,18 @@ const Login = () => {
         body: JSON.stringify(obj),
       });
 
-      const data = await response.json(obj);
-      console.log(data)
+      const data = await response.json();
+      console.log(data, "data login");
       if (response.ok) {
         const { token } = data;
-        // Use the login function from the context to store token and user data
         login(token);
+        console.log(data.role, "res role");
         message.success("Login successful!");
-        navigate("/userdashboard"); // Redirect to a protected route, e.g., Dashboard
+        if (data.role === "user") {
+          navigate("/userdashboard");
+        } else {
+          navigate("/admindashboard");
+        }
       } else {
         setEmailError(data.message || "Login failed. Please try again.");
       }
@@ -63,38 +68,70 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleLogin}>
-        <input
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f4f6f8',
+      }}
+    >
+      <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+        Login
+      </Typography>
+
+      <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: 400 }}>
+        <TextField
+          label="Email"
           type="email"
-          placeholder="Email"
+          fullWidth
+          variant="outlined"
+          margin="normal"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          error={!!emailError}
+          helperText={emailError}
         />
-        {emailError && <p>{emailError}</p>}
-        
-        <input
+
+        <TextField
+          label="Password"
           type="password"
-          placeholder="Password"
+          fullWidth
+          variant="outlined"
+          margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          error={!!passwordError}
+          helperText={passwordError}
         />
-        {passwordError && <p>{passwordError}</p>}
-        
-        <button type="submit" disabled={loading}>
-          {loading ? "Loading..." : "Login"}
-        </button>
+
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2 }}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} /> : "Login"}
+        </Button>
       </form>
-      <p>
-        Don’t have an account?{" "}
-            <a
-              class="text-blue-500 hover:underline cursor-pointer"
-                onClick={() => navigate("/signup")}>
-                      Sign Up
-            </a>
-          </p>
-   {/* <button onClick={dashboardClick}> User Dashboard</button> */}
-    </div>
+
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="body2">
+          Don’t have an account?{" "}
+          <a
+            href="#"
+            onClick={() => navigate("/signup")}
+            style={{ color: '#1976d2', textDecoration: 'underline' }}
+          >
+            Sign Up
+          </a>
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 

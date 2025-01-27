@@ -1,22 +1,32 @@
-import { useEffect } from "react";
-import { useContext } from "react";
+import { useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Box, Typography, CircularProgress } from "@mui/material";
 
 function Logout() {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Perform logout on component mount
     logout();
-    navigate("/"); // Redirect to login page
+    navigate("/"); 
   }, [logout, navigate]);
 
   return (
-    <div>
-      <h1>Logging out...</h1>
-    </div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+      }}
+    >
+      <Typography variant="h4" gutterBottom>
+        Logging out...
+      </Typography>
+      <CircularProgress /> 
+    </Box>
   );
 }
 

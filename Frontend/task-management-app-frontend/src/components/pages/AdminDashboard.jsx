@@ -29,7 +29,7 @@ function AdminViewTasks() {
   // Get Admin All Task
   const fetchTasks = async () => {
     try {
-      const response = await fetch("http://localhost:8000/tasks", {
+      const response = await fetch("https://task-management-application-orpin.vercel.app/tasks", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -53,7 +53,7 @@ function AdminViewTasks() {
   // Get all users with role 'user'
   const fetchUsers = async () => {
     try {
-      const response = await fetch("http://localhost:8000/auth/users", {
+      const response = await fetch("https://task-management-application-orpin.vercel.app/auth/users", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -75,7 +75,7 @@ function AdminViewTasks() {
   // Delete Admin Any Task
   const deleteTask = async (taskId) => {
     try {
-      const response = await fetch(`http://localhost:8000/tasks/${taskId}`, {
+      const response = await fetch(`https://task-management-application-orpin.vercel.app/tasks/${taskId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -115,7 +115,7 @@ function AdminViewTasks() {
     setCreatingTask(true);
 
     try {
-      const response = await fetch("http://localhost:8000/tasks/create", {
+      const response = await fetch("https://task-management-application-orpin.vercel.app/tasks/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

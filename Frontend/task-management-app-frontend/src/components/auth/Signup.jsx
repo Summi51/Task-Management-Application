@@ -61,7 +61,7 @@ const SignUp = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/auth/register",
+        "https://task-management-application-orpin.vercel.app/auth/register",
         {
           method: "POST",
           headers: {

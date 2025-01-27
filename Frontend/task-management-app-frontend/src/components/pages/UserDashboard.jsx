@@ -18,7 +18,7 @@ function UserDashboard() {
   // Fetch User Its Own Tasks
   const fetchUserTasks = async () => {
     try {
-      const response = await fetch("http://localhost:8000/tasks/user", {
+      const response = await fetch("https://task-management-application-orpin.vercel.app/tasks/user", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -42,7 +42,7 @@ function UserDashboard() {
   // Function to update task status
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:8000/tasks/${taskId}`, {
+      const response = await fetch(`https://task-management-application-orpin.vercel.app/tasks/${taskId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

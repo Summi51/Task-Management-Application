@@ -13,8 +13,8 @@ app.get('/', (req, res) => {
 });
 
 // Import routes
-const authRoutes = require("../src/routes/authRoutes");
-const taskRoutes = require("../src/routes/taskRoutes");
+const authRoutes = require("./routes/authRoutes");
+const taskRoutes = require("./routes/taskRoutes");
 
 // Routes
 app.use("/auth", authRoutes);

@@ -66,6 +66,7 @@ exports.deleteTask = async (req, res) => {
   }
 };
 
+// Get task (User only) 
 exports.getUserTasks = async (req, res) => {
   if (req.userRole !== "user") {
     return res.status(403).json({ message: "Access denied. Users only." });

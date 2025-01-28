@@ -25,8 +25,8 @@ This project is a Task Management Application developed with role-based access c
 
 ## Deployment Links
 
-- **Frontend**: [https://task-management-application-eobe.vercel.app/](#)
-- **Backend**: [https://task-management-application-orpin.vercel.app/](#)
+- **Frontend**: https://task-management-application-eobe.vercel.app/
+- **Backend**:  https://task-management-application-orpin.vercel.app/
 
 ## API Documentation
 

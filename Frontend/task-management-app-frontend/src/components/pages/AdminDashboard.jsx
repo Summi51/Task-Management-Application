@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
-import { Button, TextField, MenuItem, Select, InputLabel, FormControl, CircularProgress, Container, Grid, Typography, Box } from "@mui/material";
+import { Button,Checkbox, OutlinedInput, TextField, MenuItem, Select, InputLabel, FormControl, CircularProgress, Container, Grid, Typography, Box } from "@mui/material";
 
 function AdminViewTasks() {
   const { token } = useContext(AuthContext);
@@ -38,6 +38,7 @@ function AdminViewTasks() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data, 'All Task')
         setTasks(data);
       } else {
         const errData = await response.json();
@@ -62,7 +63,9 @@ function AdminViewTasks() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data)
         setUsers(data.data); 
+
       } else {
         const errData = await response.json();
         setError(errData.message || "Failed to fetch users.");
@@ -101,19 +104,19 @@ function AdminViewTasks() {
       [name]: value,
     });
   };
+  
+const [selectedMembersForTask, setSelectedMembersForTask] = useState([]);
 
-  // Handle assigned user change
-  const handleAssignedToChange = (e, index) => {
-    const { name, value } = e.target;
-    const updatedAssignedTo = [...taskData.assignedTo];
-    updatedAssignedTo[index][name] = value;
-    setTaskData({ ...taskData, assignedTo: updatedAssignedTo });
+const handleAssignedToChange = (event) => {
+    const { value } = event.target; 
+    setSelectedMembersForTask(typeof value === "string" ? value.split(",") : value);
+    console.log(value, "value+++");
   };
-
-  const handleSubmit = async (e) => {
+  
+const handleSubmit = async (e) => {
     e.preventDefault();
     setCreatingTask(true);
-
+  
     try {
       const response = await fetch("https://task-management-application-orpin.vercel.app/tasks/create", {
         method: "POST",
@@ -121,21 +124,26 @@ function AdminViewTasks() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(taskData),
+        body: JSON.stringify({
+          ...taskData,
+          assignedTo: selectedMembersForTask.map((userId) => ({
+            userId,
+            status: "pending", 
+          })), 
+        }),
       });
-
+  
       if (response.ok) {
-        const newTask = await response.json();
-        setTasks([...tasks, newTask.data]);
         setTaskData({
           title: "",
           description: "",
           dueDate: "",
           status: "pending", 
-          assignedTo: [{ userId: "", status: "pending" }], 
+          assignedTo: [], 
         });
-        message.success('Task created successfully');
-        fetchTasks();
+        setSelectedMembersForTask([]); 
+        message.success("Task created successfully");
+        fetchTasks(); 
       } else {
         const errData = await response.json();
         setError(errData.message || "Failed to create task.");
@@ -146,7 +154,7 @@ function AdminViewTasks() {
       setCreatingTask(false);
     }
   };
-
+  
   if (loading) {
     return <CircularProgress />;
   }
@@ -217,22 +225,30 @@ function AdminViewTasks() {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth required>
-                <InputLabel>Assign to User</InputLabel>
-                <Select
-                  name="userId"
-                  value={taskData.assignedTo[0].userId}
-                  onChange={(e) => handleAssignedToChange(e, 0)}
-                  label="Assign to User"
-                  style={{ minWidth: "200px" }}
-                >
-                  {users.map((user) => (
-                    <MenuItem key={user._id} value={user._id}>
-                      {user.username}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+
+    <FormControl fullWidth>
+  <InputLabel id="select-members-label">Select Members</InputLabel>
+  <Select
+    labelId="select-members-label"
+    multiple
+    value={selectedMembersForTask}
+    onChange={ handleAssignedToChange}
+    input={<OutlinedInput label="Select Members" />}
+    renderValue={(selected) =>
+      selected
+        .map((id) => users.find((user) => user._id === id)?.username)
+        .join(", ")
+    }
+  >
+    {users.map((user) => (
+      <MenuItem key={user._id} value={user._id}>
+        <Checkbox checked={selectedMembersForTask.includes(user._id)} />
+        <Typography>{user.username}</Typography>
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
             </Grid>
             <Grid item xs={12}>
               <Button

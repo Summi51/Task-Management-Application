@@ -19,7 +19,7 @@ exports.getAllTasks = async (req, res) => {
   }
 };
 
-// Create a new task (Admin only)
+// Create Task (Admin only)
 exports.createTask = async (req, res) => {
   const { title, description, dueDate, status, assignedTo } = req.body;
 
@@ -32,20 +32,20 @@ exports.createTask = async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Create a task for each user in assignedTo
-  const tasks = assignedTo.map((user) => ({
-    title, 
-    description, 
-    dueDate, 
-    status, 
-    assignedTo: [{ userId: user.userId, status: user.status }]
-  }));
+  // Create a single task with all assigned users
+  const task = new Task({
+    title,
+    description,
+    dueDate,
+    status,
+    assignedTo, 
+  });
 
   try {
-    await Task.insertMany(tasks);
-    res.status(201).json({ message: "Tasks assigned successfully." });
+    await task.save();
+    res.status(201).json({ message: "Task created successfully.", data: task });
   } catch (error) {
-    res.status(500).json({ message: "Failed to assign tasks.", error });
+    res.status(500).json({ message: "Failed to create task.", error });
   }
 };
 

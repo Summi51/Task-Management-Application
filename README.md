@@ -82,12 +82,12 @@ All APIs are documented using Postman. You can test the API using the link below
    
 2. **Frontend Setup**:
 
-cd task-management-app-frontend
-npm install
-npm start
+- cd task-management-app-frontend
+- npm install
+- npm start
 
 3. **Backend Setup**:
 
-cd task-management-app-backend
-npm install
-npm start
+- cd task-management-app-backend
+- npm install
+- npm start
